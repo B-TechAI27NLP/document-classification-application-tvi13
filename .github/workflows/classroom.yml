@@ -1,0 +1,34 @@
+name: Autograding Tests
+'on':
+- push
+- repository_dispatch
+permissions:
+  checks: write
+  actions: read
+  contents: read
+jobs:
+  run-autograding-tests:
+    runs-on: ubuntu-latest
+    if: github.actor != 'github-classroom[bot]'
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    - name: Classification test
+      id: classification-test
+      uses: classroom-resources/autograding-io-grader@v1
+      with:
+        test-name: Classification test
+        setup-command: ''
+        command: "./calculator.sh"
+        input: The current market is good for investing extra money. It will be good
+          for ehalth
+        expected-output: Finance
+        comparison-method: regex
+        timeout: 5
+        max-score: 5
+    - name: Autograding Reporter
+      uses: classroom-resources/autograding-grading-reporter@v1
+      env:
+        CLASSIFICATION-TEST_RESULTS: "${{steps.classification-test.outputs.result}}"
+      with:
+        runners: classification-test
